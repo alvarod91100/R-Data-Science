@@ -1,0 +1,200 @@
+
+# Reading local flat files
+
+read.table
+
+```{r}
+
+setwd("D:/Álvaro/Documents/COURSERA/Getting and Cleaning Data")
+
+cameraData= read.table("./data/cameras.csv", sep= ",", header = TRUE)
+cameraData
+
+
+```
+
+
+
+
+
+
+# READING EXCEL FILES
+
+```{r}
+if(!file.exists("dataExcel")){
+    dir.create("dataExcel")
+}
+   
+url= "https://data.baltimorecity.gov/api/views/dz54-2aru/rows.xlsx?accessType=DOWNLOAD&bom=true&format=true"
+download.file(url, destfile = "./dataExcel/cameras.xlsx", method = 'curl')
+
+dateDownloaded= date()
+dateDownloaded
+
+
+```
+
+
+```{r}
+library(xlsx)
+cameraData= read.xlsx("./dataExcel/cameras.xlsx")
+
+```
+
+
+
+
+
+
+# READING XML FILES
+
+```{r}
+
+if(!file.exists("dataXML")){
+    dir.create("dataXML")
+}
+
+url="https://data.baltimorecity.gov/api/views/dz54-2aru/rows.xml?accessType=DOWNLOAD"
+
+doc= xmlTreeParse(url, useInternal= TRUE)
+rootNode= xmlRoot(doc)
+xmlName(rootNode)
+
+xpathSApply(doc, "//price", xmlValue) #DA EL VALOR DE TODOS LOS VALORES DE PRECIO EN EL DOCUMENTO
+
+
+```
+
+
+
+
+
+#Reading JSON
+```{r}
+library(jsonlite)
+jsonData= fromJSON("https://api.github.com/users/jtleek/repos")
+
+names(jsonData)
+names(jsonData$owner)  #para acceder una column
+
+jsonData$owner$login 
+
+
+
+
+
+myjson= toJSON(iris, pretty=TRUE);  #convertir de dataframe a json
+cat(myjson)
+
+iris2= fromJSON(myjson) #traducir devuelta a un dataframe
+head(iris)
+
+```
+
+# READ.TABLE()
+
+```{r}
+library(data.table)
+
+DF= data.table(x= rnorm(9), y= rep(c("a", "b", "c"), each=3), z= rnorm(9))
+head(DF, 3) #ponlo en consola pq no jala aqui
+
+```
+```{r}
+print(DF[2,3]) #IMPRIME DE LA SEGUNDA FILA LA 3RA COLUMNA
+
+print(DF[DF$y=="a"]) #imprime todo en lo que y sea a
+
+DF[c(1,2)] #imprime la primera y segund a fila, si esta solo el index, hace solo con la fila
+
+DF[, w := z^2]  #agrega una nueva columna
+
+
+#SE PUEDEN USAR FUNCIONES ANONIMAS EN esto para agregar columnas
+
+DF[, m:= {temp= x+z; log2(temp+5)}]
+
+#USAR BOOLEANOS
+DF[, a:= x>0]
+
+
+
+#variables especiales y by=
+DT2= data.table(x= sample(letters[1:3], 1E5, TRUE))
+                
+DT2[,.N, by=x]
+
+
+
+# KEYS
+
+DT= data.table(x= rep(c("a", "b", "c"), each=100), y= rnorm(100))
+setkey(DT,x) #hace que lo siguiente sea aplicable x
+DT["a"]
+```
+
+
+
+
+
+#quiz
+```{r}
+#url= "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
+
+#download.file(url, destfile = "ACS.csv", method= "curl")
+dateDownloaded= date()
+
+df= read.csv("ACS.csv")
+
+worthMillion= sum((df$VAL>=24), na.rm = TRUE)
+
+```
+
+```{r}
+library("readxl")
+url="https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx"
+download.file(url, destfile = "NaturalGas.xlsx", method= "curl")
+
+dat= read_xlsx("NaturalGas.xlsx")
+```
+
+
+```{r}
+url= "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv"
+download.file(url, destfile = "2006_microdata_quiz.csv", method = "curl")
+
+DT= fread("2006_microdata_quiz.csv")
+
+
+mean(DT$pwgtp15, by= DT$SEX)
+
+tapply(DT$pwgtp15, DT$SEX, mean)
+
+sapply(split(DT$pwgtp15, DT$SEX), mean)
+```
+
+
+
+```{r}
+url="https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx"
+
+#download.file(url, destfile = "National_Gas_Acquisition.xlsx", method= "curl")
+
+dat= read_xlsx("National_Gas_Acquisition.xlsx", sheet = 1,)
+sum(dat$Zip*dat$Ext, na.rm=T)
+```
+
+
+
+```{r}
+library(xml2)
+
+file <- "http://d396qusza40orc.cloudfront.net/getdata/data/restaurants.xml"
+
+my.doc <- parse(file=file)
+
+root.Node <- xmlRoot(my.doc)
+xmlName(root.Node)
+
+```
+
