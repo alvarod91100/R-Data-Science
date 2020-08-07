@@ -1,0 +1,83 @@
+
+
+```{r}
+library(RMySQL)
+ucscDb= dbConnect(MySQL(), user= "genome", host= "genome-mysql.cse.ucsc.edu")
+
+result= dbGetQuery(ucscDb, "show databases;"); dbDisconnect(ucsc)   #ALWAYS DISCONNECT ONCE YOU FINISH PROCESSING DATA
+```
+
+
+
+```{r}
+hg19= dbConnect(MySQL(), user="genome", db="hg19", host="genome-mysql.cse.ucsc.edu") 
+
+allTables= dbListTables(hg19)
+
+length(allTables)
+
+allTables[1:5]
+```
+
+
+```{r}
+dbListFields(hg19, "affyU133Plus2")  #SACAR LOS FIELDS DE ESTA TABLA QUE PERTENECE AL DATABASE hg19
+
+
+count=dbGetQuery(hg19, "select count(*) from affyU133Plus2")  #SACAR LA CANTIDAD DE REGISTROS QUE HAY
+print(count)
+```
+
+```{r}
+#READ TABLE
+
+affyData= dbReadTable(hg19, "affyU133Plus2")   #HG19 ES LA DB Y LO OTRO ES LA TABLA
+
+head(affyData)
+
+```
+
+
+
+```{r}
+# SUBSET DATA
+
+query= dbSendQuery(hg19, "select * from affyU133Plus2 where misMatches between 1 and 3")
+
+affyMisMatch= fetch(query); quantile(affyMisMatch$misMatches)
+```
+
+
+
+
+
+# WEB SCRAPPING
+
+```{r}
+library(httr)
+library(XML)
+con= url('http://scholar.google.com/citations?user=HI-I6C0AAAAJ&hl=en')
+
+htmlCode= readLines(con)
+
+close(con)  #COMO CON DB, CERRAR LA PAGINA
+
+htmlCode
+```
+
+```{r}
+#USING IT WITH XML
+url='http://scholar.google.com/citations?user=HI-I6C0AAAAJ&hl=en'
+html= htmlTreeParse(url, useInternalNodes = TRUE)
+
+xpathSApply(html, "//title", xmlValue)
+
+```
+
+
+
+
+#APIS
+
+
+

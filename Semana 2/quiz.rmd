@@ -1,0 +1,6 @@
+```{r}
+library(sqldf)
+acs= read.csv('data.csv')
+B <- sqldf("select distinct AGEP from acs")
+```
+
